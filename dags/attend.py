@@ -22,7 +22,7 @@ day = DAG(
 time = DAG(
     'attendance_check',
     default_args=default_args,
-    schedule_interval="0 8-16 * * 1-5"
+    schedule_interval="50 8-15 * * 1-5"
 )
 
 def gen_day_task(name, cmd, dags, trigger='all_success'):
@@ -42,9 +42,10 @@ data_5 = gen_day_task('make_col', 'echo "make"', day)
 
 [data_1, data_2] >> data_3 >> data_4 >> data_5
 
+check_0 = gen_day_task('today_check', 'echo "check"', time)
 check_1 = gen_day_task('get_attendance', 'echo "get"', time)
 check_2 = gen_day_task('noti_to_teacher', 'echo "noti"', time)
 check_3 = gen_day_task('attendance_check', 'echo "check"', time)
 
-check_1 >> check_3
+check_0 >> check_1 >> check_3
 check_1 >> check_2

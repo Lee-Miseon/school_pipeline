@@ -15,14 +15,16 @@ default_args = {
 
 day = DAG(
     'gen_table',
-    default_args=default_args,
-    schedule_interval="0 8 * * 1-5"
+    schedule_interval="0 8 * * 1-5",
+    user_defined_macros={'local_dt': lambda execution_date: execution_date.in_timezone(local_tz).strftime("%Y-%m-%d %H:%M:%S")},
+    default_args=default_args
 )
 
 time = DAG(
     'attendance_check',
-    default_args=default_args,
-    schedule_interval="50 8-15 * * 1-5"
+    schedule_interval="50 8-15 * * 1-5",
+    user_defined_macros={'local_dt': lambda execution_date: execution_date.in_timezone(local_tz).strftime("%Y-%m-%d %H:%M:%S")},
+    default_args=default_args
 )
 
 def gen_day_task(name, cmd, dags, trigger='all_success'):
@@ -34,8 +36,8 @@ def gen_day_task(name, cmd, dags, trigger='all_success'):
     )
     return task
 
-data_1 = gen_day_task('get_student', 'echo "get"', day)
-data_2 = gen_day_task('get_timetable', 'echo "get"', day)
+data_1 = gen_day_task('get_student', 'echo "hive -f student_list.hql"', day)
+data_2 = gen_day_task('get_timetable', 'echo "hive -f schedule.hql"', day)
 data_3 = gen_day_task('data_load', 'echo "hdfs"', day)
 data_4 = gen_day_task('table_join', 'echo "join"', day)
 data_5 = gen_day_task('make_col', 'echo "make"', day)
